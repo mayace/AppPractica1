@@ -6,13 +6,14 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
   ScrollView,
   View,
   Text,
+  Button,
   StatusBar,
 } from 'react-native';
 
@@ -24,47 +25,100 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+const Panel = function () {
+  const [pesoTotal, setPesoTotal] = useState(0);
+  const [liquidoNivel, setLiquidoNivel] = useState(1);
+  const [alertaList, setAlertaList] = useState(2);
+
+  const isBuzonVacio = (peso) => peso === 0;
+  const LIQUIDO_CAPACIDAD = 100;
+
+  const virtualH = (base, actualPer) => {
+    const per = 100 - Math.min(100, (100 * actualPer) / base);
+    return per + '%';
+  };
+
+  const actualPer = () => (100 * liquidoNivel) / LIQUIDO_CAPACIDAD;
+
+  const styles = {
+    dato: {textTransform: 'uppercase'},
+    title: {fontWeight: 'bold', textTransform: 'uppercase', fontSize: 28},
+  };
+
+  return (() => {
+    if (!isBuzonVacio(pesoTotal)) {
+      alert('Llego algo en el buzon.');
+    }
+
+    const per100 = actualPer();
+    if (per100 === 0) {
+      alert('Desinfectante vacio');
+    } else if (per100 <= 10) {
+      alert('Desinfectante bajo.');
+    }
+
+    return (
+      <View>
+        <View style={{height: 200, borderWidth: 4, position: 'relative'}}>
+          <View style={{height: '50%', backgroundColor: '#9acd32'}}>
+            <View
+              style={{
+                backgroundColor: '#fff',
+                height: virtualH(50, Math.max(0, actualPer() - 50)),
+              }}
+            />
+          </View>
+          <View style={{height: '40%', backgroundColor: '#ffd700'}}>
+            <View
+              style={{
+                backgroundColor: '#fff',
+                height: virtualH(40, Math.max(0, actualPer() - 10)),
+              }}
+            />
+          </View>
+          <View style={{height: '10%', backgroundColor: '#ff4500'}}>
+            <View
+              style={{
+                backgroundColor: '#fff',
+                height: virtualH(10, actualPer()),
+              }}
+            />
+          </View>
+        </View>
+        <View>
+          <Text style={{textAlign: 'center', fontSize: 48}}>
+            {actualPer()}%
+          </Text>
+        </View>
+        <Text style={styles.title}>Buzon</Text>
+        <Text style={styles.dato}>
+          {isBuzonVacio(pesoTotal) ? 'Vacio' : 'Ocupado'}
+        </Text>
+        <Text style={styles.dato}>Peso: {pesoTotal}</Text>
+
+        <Text style={styles.title}>Desinfectante</Text>
+        <Text style={styles.dato}>Liquido: {liquidoNivel}</Text>
+        <Text style={styles.dato}>Capacidad: {LIQUIDO_CAPACIDAD}</Text>
+        <Button
+          onPress={() => {
+            setLiquidoNivel(Math.floor(Math.random() * 100));
+            setPesoTotal(Math.floor(Math.random() * 2));
+          }}
+          title="random valores"
+        />
+      </View>
+    );
+  })();
+};
+
 const App: () => React$Node = () => {
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
+        <ScrollView contentInsetAdjustmentBehavior="automatic">
+          <View style={{padding: 20}}>
+            <Panel />
           </View>
         </ScrollView>
       </SafeAreaView>
