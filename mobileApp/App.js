@@ -25,6 +25,8 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+const PushNotification = require('react-native-push-notification');
+
 const Panel = function () {
   const [pesoTotal, setPesoTotal] = useState(0);
   const [liquidoNivel, setLiquidoNivel] = useState(1);
@@ -40,6 +42,15 @@ const Panel = function () {
 
   const actualPer = () => (100 * liquidoNivel) / LIQUIDO_CAPACIDAD;
 
+  const mensajes = {
+    buzon: {
+      OCUPADO: 'Llego algo en el buzon.',
+    },
+    desinfectante: {
+      VACIO: 'Desinfectante vacio',
+      BAJO: 'Desinfectante bajo',
+    },
+  };
   const styles = {
     dato: {textTransform: 'uppercase'},
     title: {fontWeight: 'bold', textTransform: 'uppercase', fontSize: 28},
@@ -47,14 +58,20 @@ const Panel = function () {
 
   return (() => {
     if (!isBuzonVacio(pesoTotal)) {
-      alert('Llego algo en el buzon.');
+      PushNotification.localNotification({
+        message: mensajes.buzon.OCUPADO,
+      });
     }
 
     const per100 = actualPer();
     if (per100 === 0) {
-      alert('Desinfectante vacio');
+      PushNotification.localNotification({
+        message: mensajes.desinfectante.VACIO,
+      });
     } else if (per100 <= 10) {
-      alert('Desinfectante bajo.');
+      PushNotification.localNotification({
+        message: mensajes.desinfectante.BAJO,
+      });
     }
 
     return (
