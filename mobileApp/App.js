@@ -33,7 +33,9 @@ const Panel = function ({feed: {created_at, field1, field2, field3, field4}}) {
   const [alertaList, setAlertaList] = useState(2);
 
   useEffect(() => {
-    setLiquidoNivel(LIQUIDO_CAPACIDAD - (field2 || 0));
+    setLiquidoNivel(
+      LIQUIDO_CAPACIDAD - Math.min(LIQUIDO_CAPACIDAD, parseFloat(field2 || 0)),
+    );
     setPesoTotal(field1 || 0);
   });
 
@@ -45,7 +47,7 @@ const Panel = function ({feed: {created_at, field1, field2, field3, field4}}) {
     return per + '%';
   };
 
-  const actualPer = () => (100 * liquidoNivel) / LIQUIDO_CAPACIDAD;
+  const actualPer = () => Math.round((100 * liquidoNivel) / LIQUIDO_CAPACIDAD);
 
   const mensajes = {
     buzon: {
@@ -58,6 +60,7 @@ const Panel = function ({feed: {created_at, field1, field2, field3, field4}}) {
   };
   const styles = {
     dato: {textTransform: 'uppercase'},
+    dato2: {textTransform: 'uppercase', textDecorationLine: 'underline'},
     title: {fontWeight: 'bold', textTransform: 'uppercase', fontSize: 28},
   };
 
@@ -88,6 +91,8 @@ const Panel = function ({feed: {created_at, field1, field2, field3, field4}}) {
       ) {
         PushNotification.localNotification({
           message: mensajes.desinfectante.BAJO,
+          playSound: true,
+          title: nivelMensaje,
         });
       }
     }
@@ -134,7 +139,7 @@ const Panel = function ({feed: {created_at, field1, field2, field3, field4}}) {
         {/* <Text style={styles.dato}>
           {isBuzonVacio(pesoTotal) ? 'Vacio' : 'Ocupado'}
         </Text> */}
-        <Text style={styles.dato}>{field3 || 'vacio'}</Text>
+        <Text style={styles.dato2}>{field3 || 'vacio'}</Text>
         <Text style={styles.dato}>Peso: {pesoTotal} gramos</Text>
 
         <Text style={styles.title}>Desinfectante</Text>
@@ -162,6 +167,7 @@ const obtenerFeed = async () => {
       feeds: [first],
     } = await res.json();
 
+    console.log(first);
     if (!first) {
       first = {
         created_at: new Date(),
@@ -180,7 +186,7 @@ const App: () => React$Node = () => {
   window.setTimeout(async () => {
     const f = await obtenerFeed();
     setFeed(f);
-  }, 20000);
+  }, 5000);
 
   return (
     <>
