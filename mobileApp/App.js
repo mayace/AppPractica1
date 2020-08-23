@@ -65,35 +65,43 @@ const Panel = function ({feed: {created_at, field1, field2, field3, field4}}) {
   };
 
   return (() => {
-    // if (!isBuzonVacio(pesoTotal)) {
-    //   PushNotification.localNotification({
-    //     message: mensajes.buzon.OCUPADO,
-    //   });
-    // }
+    if (!isBuzonVacio(pesoTotal)) {
+      PushNotification.localNotification({
+        message: mensajes.buzon.OCUPADO,
+      });
+      alert(mensajes.buzon.OCUPADO);
+    }
 
-    // const per100 = actualPer();
-    // if (per100 === 0) {
-    //   PushNotification.localNotification({
-    //     message: mensajes.desinfectante.VACIO,
-    //   });
-    // } else if (per100 <= 10) {
-    //   PushNotification.localNotification({
-    //     message: mensajes.desinfectante.BAJO,
-    //   });
-    // }
+    const per100 = actualPer();
+    if (per100 === 0) {
+      PushNotification.localNotification({
+        message: mensajes.desinfectante.VACIO,
+      });
+      alert(mensajes.desinfectante.VACIO);
+    } else if (per100 <= 10) {
+      PushNotification.localNotification({
+        message: mensajes.desinfectante.BAJO,
+      });
+      alert(mensajes.desinfectante.BAJO);
+    }
 
     const nivelMensaje = field4 || '';
 
+    // alertas que vienen del api
+    // no mostrar , usar las de arriba que son las locales del app
+    // segun el %
     if (nivelMensaje) {
       if (
         nivelMensaje === 'DepositoBajo' ||
         nivelMensaje === 'DepositoMuyBajo'
       ) {
-        PushNotification.localNotification({
-          message: mensajes.desinfectante.BAJO,
-          playSound: true,
-          title: nivelMensaje,
-        });
+        // PushNotification.localNotification({
+        //   message: mensajes.desinfectante.BAJO,
+        //   playSound: true,
+        //   title: nivelMensaje,
+        //   visibility: 'public',
+        // });
+        // alert(mensajes.desinfectante.BAJO);
       }
     }
 
@@ -185,7 +193,10 @@ const App: () => React$Node = () => {
 
   window.setTimeout(async () => {
     const f = await obtenerFeed();
-    setFeed(f);
+    if (f && f.entry_id === feed.entry_id) {
+    } else {
+      setFeed(f);
+    }
   }, 5000);
 
   return (
